@@ -1,0 +1,25 @@
+{
+  "name": "analytics",
+  "version": "1.0.0",
+  "main": "index.js",
+  "engines": {
+    "node": "7.5.0"
+  },
+  "scripts": {
+    "dev": "nodemon index.js"
+  },
+  "repository": "https://github.com/Nnutthowze/analytics.git",
+  "author": "Nnutthowze <briareibismuth@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "3.4.7",
+    "express": "4.14.1",
+    "moment": "^2.17.1"
+  },
+  "devDependencies": {
+    "eslint": "^3.16.0",
+    "eslint-config-airbnb-base": "11.1.0",
+    "eslint-plugin-import": "2.2.0",
+    "nodemon": "1.11.0"
+  }
+}
