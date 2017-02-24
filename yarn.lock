@@ -162,7 +162,7 @@ block-stream@*:
   dependencies:
     inherits "~2.0.0"
 
-bluebird@3.4.7:
+bluebird@3.4.7, bluebird@3.x:
   version "3.4.7"
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.4.7.tgz#f72d760be09b7f76d08ed8fae98b289a8d05fab3"
 
@@ -1346,7 +1346,14 @@ minimist@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.0.tgz#a35008b20f41383eec1fb914f4cd5df79a264284"
 
-"mkdirp@>=0.5 0", mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@~0.5.1:
+mkdirp-bluebird@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/mkdirp-bluebird/-/mkdirp-bluebird-1.2.1.tgz#cdaf2a20493fdae6be1d79eab0c3160da4e3d17f"
+  dependencies:
+    bluebird "3.x"
+    mkdirp ">=0.3.0"
+
+mkdirp@>=0.3.0, "mkdirp@>=0.5 0", mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@~0.5.1:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-0.5.1.tgz#30057438eac6cf7f8c4767f38648d6697d75c903"
   dependencies:
