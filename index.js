@@ -46,12 +46,12 @@ let isBusy = false;
 // let lastUpdateDbTime = getCurrentTime().time;
 // let lastUpdateRefTime = lastUpdateDbTime;
 
-const t = require('./helpers/time');
+const writeToFile = require('./helpers/write-file');
 
 app.listen(port, init);
 
 app.use('/', (req, res) => {
-  res.json(t());
+  res.end('Exit');
 });
 
 // TODO:
