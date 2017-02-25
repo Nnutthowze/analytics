@@ -1,11 +1,8 @@
 const Promise = require('bluebird');
 const fs = Promise.promisifyAll(require('fs'));
 
-const readFromFile = (path, obj) =>
+const readFromFile = path =>
   fs.readFileAsync(path, 'utf8')
-    .then((data) => {
-      obj = JSON.parse(data);
-    })
-    .catch(err => console.error(err));
+    .then(data => JSON.parse(data));
 
 module.exports = readFromFile;
