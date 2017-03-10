@@ -1,39 +1,29 @@
 const admin = require('firebase-admin');
 
-const verifyToken = (req, res, next) => {
-  console.log(req.query);
-  const bearer = req.query.bearer;
-  const authHeader = req.headers.authorization;
-  console.log(authHeader);
-  if (!authHeader && !bearer) {
-    return res.redirect('/login');
+const verifyJWT = (req, res, next) => {
+  const jwtPostRequest = req.body.token || '';
+  const jwtGetRequest = req.query.bearer || '';
+  const authHeader = req.headers.authorization || '';
+  const [bearerName, jwtFromHead] = authHeader.split(' ');
+
+  if ((bearerName !== 'Bearer' || !jwtFromHead) && !jwtGetRequest && !jwtPostRequest) {
+    const message = 'Something went wrong... ask system administrator...';
+    return res.status(410).send(message);
   }
 
-  let token = '';
+  const jwt = (jwtGetRequest || jwtFromHead || jwtPostRequest);
 
-  if (bearer) {
-    token = bearer;
-  } else {
-    const authHeaderArr = authHeader.split(' ');
-    const bearerName = authHeaderArr[0];
-    token = authHeaderArr[1];
-
-    if (bearerName !== 'Bearer' || !token) {
-      return res.redirect('/login');
-    }
-  }
-
-  return admin.auth().verifyIdToken(token)
+  return admin.auth().verifyIdToken(jwt)
     .then((decodedToken) => {
-      console.log('DECODED!!!');
+      req.token = jwt;
       next();
     })
     .catch((err) => {
-      res.status(401).json({ message: 'Can\'t verify token' });
       console.error(err);
+      return res.status(410).send(err.message);
     });
 };
 
 module.exports = {
-  verifyToken,
+  verifyJWT,
 };

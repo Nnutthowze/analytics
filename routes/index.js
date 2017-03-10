@@ -1,6 +1,7 @@
 const path = require('path');
 const express = require('express');
 const firebase = require('firebase');
+const getFirebaseMessage = require('./../helpers/firebase-error-messages');
 
 const router = express.Router();
 
@@ -11,22 +12,15 @@ router.get('/login', (req, res) => res.sendFile(path.join(__dirname, '../views/l
 router.post('/login', (req, res) => {
   const { login, password } = req.body;
   return firebase.auth().signInWithEmailAndPassword(login, password)
-    .then(() => {
-      return firebase.auth().currentUser.getToken()
-        .then((idToken) => {
-          // console.log(idToken);
-          // res.header('Authorization', `Bearer ${idToken}`);
-          // res.redirect('/dashboard');
-          res.status(200).json({ token: idToken });
-          // res.redirect('/dashboard');
-        });
-    })
+    .then(() => firebase.auth().currentUser.getToken()
+      .then((token) => {
+        const redirect = `/dashboard/?bearer=${token}`;
+        return res.json({ redirect });
+      })
+    )
     .catch((err) => {
-      console.error(err);
-      // res.json({
-      //   message: err.message,
-      // });
-      res.end(err);
+      const message = getFirebaseMessage(err);
+      return res.status(410).send(message);
     });
 });
 

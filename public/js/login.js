@@ -1,23 +1,30 @@
 (function () {
+
+  var mainForm = $('#auth');
+
+  function onError(err) {
+    var message = err.responseText;
+    console.log(err);
+    $('.message').text(message);
+    mainForm[0].reset();
+  }
+
+  function onSuccess(data) {
+    if (data.redirect) {
+      window.location = data.redirect;
+    }
+  }
+
   $("#auth").submit(function () {
     $.ajax({
-      beforeSend: function (xhr) {
-        var token = localStorage.getItem('token');
-        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-      },
       url: '/login',
-      data: $('#auth').serialize(),
+      data: mainForm.serialize(),
       method: 'POST',
     })
-    .done(function (t) {
-        console.log(t.token);
-        localStorage.setItem('token', t.token);
-        window.location.replace('http://localhost:3000/dashboard/?bearer=' + t.token);
-    })
-    .fail(function (err) {
-      console.error(err);
-    });
+    .fail(onError)
+    .done(onSuccess);
 
     return false;
   });
+
 })();
