@@ -10,6 +10,7 @@ const bodyParser = require('body-parser');
 const { DB_TIMER, REF_TIMER, DB_PATH } = require('./helpers/config');
 const indexRoutes = require('./routes/index');
 const dashboardRoutes = require('./routes/dashboard');
+const otherRoutes = require('./routes/other');
 
 const port = process.env.PORT || 3000;
 
@@ -33,6 +34,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use('/', indexRoutes);
 app.use('/dashboard', dashboardRoutes);
+app.use('*', otherRoutes);
 
 // prevents some basic attacks on express framework
 app.disable('x-powered-by');
@@ -40,11 +42,13 @@ app.disable('x-powered-by');
 app.listen(port, require('./lib/init')(analytics));
 
 // TODO:
-// configure .eslint for frontend
-// rebuild html page to Pug/Jade
-// flash message to use that somebody is login or logged out module name: connect-flash
-// recheck authentication logic, need session
-// show messages about errors when user is trying to login
+// continue work on api code
+// use logs instead of console.error and console.log
+// cluster api vs pm2
 // return favicon
-// express-generator to change structure of project
+// basic design for frontend: http://coenraets.org/blog/2012/10/real-time-web-analytics-with-node-js-and-socket-io/
 // add react for frontend
+// advanced design for dashboard from "TIM"?
+// configure .eslint for react
+// make decent design
+// express-generator to change structure of project
