@@ -2,6 +2,24 @@
 
 When Client opens a page, script is doing an AJAX call to the Node.js server and passes necessary information.
 
+##URL Sample:
+
+```
+https://localhost:3000/api/pageviews/:id/:page/:pagenum/?as=799&bdk=b799&abpas=8796109800064_16384_512&_server=web14&_ctime=174&_timestamp=1489353463.4465
+```
+
+####Params:
+- ***id*** - site_id,
+- ***page*** - page/post/article opened,
+- ***pagenum*** - page number (optional),
+
+####Query:
+- ***abpas*** - Pas (embedded in the source code of a page),
+- ***_server*** - Server Name,
+- ***_ctime*** - Creation Time,
+- ***_timestamp*** - Timestamp of page load
+- ***and other*** - like as, as-source, bdk and so on...
+
 ###Representation of ***websites***:
 
 ```javascript
@@ -63,7 +81,7 @@ When Client opens a page, script is doing an AJAX call to the Node.js server and
 ```
 
 ####Params:
-- ***date*** - The same like in `websites`
+- ***date*** - The same date like in `websites`
 - ***siteId*** - The same siteId like in `websites`
 - ***webServerName*** - Server from where request came from
 - ***real*** - Total real server traffic, only if _timestemp is new.
