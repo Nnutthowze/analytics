@@ -1,17 +1,6 @@
 # Node.js PageView Analytics
 
-Node.js server serves 1x1 image to the client for collecting necessary information, when an arbitrary user tries to access specific url.
-
-```javascript
-var ico = new Image();
-ico.onload = function() {
-    alert('ico is loaded');
-}
-ico.onerror = function() {
-    alert('there was an error');
-}
-ico.src = "domain.com/img/favicon.ico";
-```
+When Client opens a page, script is doing an AJAX call to the Node.js server and passes necessary information.
 
 ###Representation of ***websites***:
 
