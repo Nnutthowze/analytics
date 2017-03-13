@@ -1,16 +1,13 @@
 const express = require('express');
 const path = require('path');
 const getTime = require('./../helpers/time');
-const { DB_PATH } = require('./../helpers/config');
+const { DB_TIMER, REF_TIMER, DB_PATH } = require('./../helpers/config');
 
 const router = express.Router();
 
-const getUrlParams = query => Object.entries(query).reduce((prev, [key, value]) => {
-  if (key !== 'abpas' && key.startsWith('_')) {
-    prev.push(`${key}=${value}`);
-  }
-  return prev;
-}, []).join('&');
+const removeUnnecessaryParams = ([key, value]) => key !== 'abpas' && !key.startsWith('_');
+const generateQueryString = ([key, value]) => `${key}=${value}`;
+const getUrlParams = query => Object.entries(query).filter(removeUnnecessaryParams).map(generateQueryString).join('&');
 
 // router for testing purposes
 router.get('/test', (req, res) => res.sendFile(path.join(__dirname, '../views/test.html')));
@@ -35,7 +32,7 @@ router.put('/pageviews/:id/:page/:pagenum?', (req, res) => {
   const tmpPage = page.replace('__x__', '');
   const tmpPageNum = `/${$page}` || '';
   const partUrl = `${tmpPage}${tmpPageNum}`;
-  const urlParams = getUrlParams(Object.assign({}, req.query));
+  const urlParams = getUrlParams(req.query);
 
   const splitUrl = [partUrl, urlParams];
 
@@ -45,7 +42,6 @@ router.put('/pageviews/:id/:page/:pagenum?', (req, res) => {
 });
 
 router.get('/referrer/:id', (req, res) => {
-  res.send('lol');
   const { id } = req.params;
   const { referrer } = global.analytics;
   const data = referrer[id] || 'No Data';
