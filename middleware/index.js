@@ -14,10 +14,7 @@ const verifyJWT = (req, res, next) => {
   const jwt = (jwtGetRequest || jwtFromHead || jwtPostRequest);
 
   return admin.auth().verifyIdToken(jwt)
-    .then((decodedToken) => {
-      req.token = jwt;
-      next();
-    })
+    .then((decodedToken) => next())
     .catch((err) => {
       console.error(err);
       return res.status(410).send(err.message);

@@ -5,16 +5,15 @@ const moment = require('moment');
 const fs = Promise.promisifyAll(require('fs'));
 const path = require('path');
 const dotenv = require('dotenv').config();
-const getTime = require('./helpers/time');
 const bodyParser = require('body-parser');
-const { DB_TIMER, REF_TIMER, DB_PATH } = require('./helpers/config');
-const indexRoutes = require('./routes/index');
+const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
+const apiRoutes = require('./routes/api');
 const otherRoutes = require('./routes/other');
 
 const port = process.env.PORT || 3000;
 
-const analytics = {
+global.analytics = {
   websites: {},
   abCampaign: {},
   serverStats: {},
@@ -32,14 +31,15 @@ app.use('/assets', express.static('public'));
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use('/', indexRoutes);
+app.use('/api', apiRoutes);
+app.use('/auth', authRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('*', otherRoutes);
 
 // prevents some basic attacks on express framework
 app.disable('x-powered-by');
 
-app.listen(port, require('./lib/init')(analytics));
+app.listen(port, require('./lib/init')(global.analytics));
 
 // TODO:
 // continue work on api code

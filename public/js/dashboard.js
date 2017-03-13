@@ -14,6 +14,6 @@
     sessionStorage.setItem('token', token);
   }
 
-  window.history.replaceState(null, null, window.location.pathname);
+  // window.history.replaceState(null, null, window.location.pathname);
 
 })();

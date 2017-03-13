@@ -4,7 +4,6 @@
 
   function onError(err) {
     var message = err.responseText;
-    console.log(err);
     $('.message').text(message);
     mainForm[0].reset();
   }
@@ -15,7 +14,9 @@
     }
   }
 
-  $("#auth").submit(function () {
+  $("#auth").submit(function(e) {
+    e.preventDefault();
+
     $.ajax({
       url: '/login',
       data: mainForm.serialize(),
@@ -23,8 +24,6 @@
     })
     .fail(onError)
     .done(onSuccess);
-
-    return false;
   });
 
 })();
