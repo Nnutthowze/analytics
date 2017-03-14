@@ -1,7 +1,12 @@
 const express = require('express');
 const path = require('path');
+// const Promise = require('bluebird');
+// const fs = Promise.promisifyAll(require('fs'));
+const moment = require('moment');
 const getTime = require('./../helpers/time');
+const readFromFile = require('./../helpers/read-file');
 const { DB_TIMER, REF_TIMER, DB_PATH } = require('./../helpers/config');
+
 
 const router = express.Router();
 
@@ -39,6 +44,41 @@ router.put('/pageviews/:id/:page/:pagenum?', (req, res) => {
   // TODO: continue
 
   return res.status(200).send('');
+});
+
+router.get('/campaign/:id/:date', (req, res) => {
+  // POSSIBLE VALUES for `id`:
+  // 0, 1, 2, ... n, where `n` represents number of supported websites
+  // POSSIBLE VALUES for `date`:
+  // -Infinity ... -2, -1, 0 or 20161231,
+  // WHERE:
+  //       0 - current date,
+  //      -1 - yesterday,
+  //      -2 - day before yesterday
+  const { id, date } = req.params;
+  const { year, month, day } = getTime();
+  const today = `${year}${month}${day}`;
+
+  if ((date > 0 && date.length < 8) || date > today) {
+    return res.status(404).send(`Data for siteId: ${id} not found`);
+  }
+
+  if (date === '0') { // use current date
+    const { abCampaign } = global.analytics;
+    if (!abCampaign[today] || !abCampaign[today][id]) {
+      return res.status(404).send('Data not found');
+    }
+    return res.status(200).json(abCampaign[today][id]);
+  }
+  // not today
+  const beforeToday = (date.length < today.length) ? moment(today).add(date).format('YYYYMMDD') : date;
+  const filePath = path.join(DB_PATH, beforeToday, `${id}_campaign.json`);
+  return readFromFile(filePath)
+    .then(data => res.status(200).json(data))
+    .catch((err) => {
+      console.error(err);
+      return res.status(404).send('File not found');
+    });
 });
 
 router.get('/referrer/:id', (req, res) => {
