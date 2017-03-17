@@ -40,6 +40,7 @@ app.listen(port, require('./lib/init')(global.analytics));
 
 // TODO:
 // continue work on api code
+// add regex to route to avoid stupid checks in the code
 // use logs instead of console.error and console.log
 // cluster api vs pm2
 // return favicon

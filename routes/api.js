@@ -1,13 +1,12 @@
 const express = require('express');
 const path = require('path');
-// const Promise = require('bluebird');
-// const fs = Promise.promisifyAll(require('fs'));
+const Promise = require('bluebird');
+const fs = Promise.promisifyAll(require('fs'));
 const moment = require('moment');
 const getTime = require('./../helpers/time');
 const readFromFile = require('./../helpers/read-file');
+const writeToFile = require('./../helpers/write-file');
 const { DB_TIMER, REF_TIMER, DB_PATH } = require('./../helpers/config');
-
-
 const router = express.Router();
 
 const removeUnnecessaryParams = ([key, value]) => key !== 'abpas' && !key.startsWith('_');
@@ -19,7 +18,7 @@ router.get('/test', (req, res) => res.sendFile(path.join(__dirname, '../views/te
 
 // old GET => /addSiteVisit/:siteId/:url/:page?
 // new POST => /api/pageviews/:id/:page/:pagenum?
-router.put('/pageviews/:id/:page/:pagenum?', (req, res) => {
+router.patch('/pageviews/:id/:page/:pagenum?', (req, res) => {
   // params in url `:url` or `:page` => req.params
   const { id, page, pagenum } = req.params;
   // params appended to url after `/?` => req.query
@@ -66,19 +65,16 @@ router.get('/campaign/:id/:date', (req, res) => {
   if (date === '0') { // use current date
     const { abCampaign } = global.analytics;
     if (!abCampaign[today] || !abCampaign[today][id]) {
-      return res.status(404).send('Data not found');
+      return res.status(404).send(`Data for siteId: ${id} not found`);
     }
     return res.status(200).json(abCampaign[today][id]);
   }
   // not today
-  const beforeToday = (date.length < today.length) ? moment(today).add(date).format('YYYYMMDD') : date;
+  const beforeToday = (date < 0) ? moment(today).add(date).format('YYYYMMDD') : date;
   const filePath = path.join(DB_PATH, beforeToday, `${id}_campaign.json`);
   return readFromFile(filePath)
     .then(data => res.status(200).json(data))
-    .catch((err) => {
-      console.error(err);
-      return res.status(404).send('File not found');
-    });
+    .catch((err) => res.status(404).send('File not found'));
 });
 
 router.get('/referrer/:id', (req, res) => {
@@ -86,6 +82,40 @@ router.get('/referrer/:id', (req, res) => {
   const { referrer } = global.analytics;
   const data = referrer[id] || 'No Data';
   res.status(200).send(data);
+});
+
+router.patch('/referrer/:id/:name/:counter?', (req, res) => {
+  const { id, name } = req.params;
+  const counter = req.params.counter || 'counter';
+  const { referrer } = global.analytics;
+  const filePath = path.join(DB_PATH, '../referrer.json');
+
+  if (!referrer[id]) {
+    referrer[id] = {};
+  }
+
+  if (!referrer[id][name]) {
+    referrer[id][name] = {};
+  }
+
+  if (!referrer[id][name][counter]) {
+    referrer[id][name][counter] = 1;
+  } else {
+    referrer[id][name][counter] += 1;
+  }
+
+  res.status(200).send('Resource was updated successfully');
+
+  return fs.statAsync(filePath)
+    .then(({ mtime }) => {
+      const { currentTime } = getTime();
+      const startTime = moment(mtime, 'YYYY-MM-DD HH:mm:ss');
+      const lastTime = moment(currentTime, 'YYYY-MM-DD HH:mm:ss');
+      const secondsDiff = lastTime.diff(startTime, 'seconds');
+      if (secondsDiff < REF_TIMER) throw new Error('The time has not passed yet...');
+      return writeToFile(filePath, referrer);
+    })
+    .catch(err => console.error(err));
 });
 
 module.exports = router;

@@ -18,7 +18,7 @@ router.post('/login', (req, res) => {
     )
     .catch((err) => {
       const message = getFirebaseMessage(err);
-      return res.status(410).send(message);
+      return res.status(401).send(message);
     });
 });
 

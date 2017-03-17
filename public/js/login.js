@@ -20,7 +20,7 @@
     $.ajax({
       url: '/login',
       data: mainForm.serialize(),
-      method: 'POST',
+      method: 'PATCH',
     })
     .fail(onError)
     .done(onSuccess);

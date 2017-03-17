@@ -9,7 +9,7 @@ const getTime = () => {
     day: tzTime.format('DD'),
     month: tzTime.format('MM'),
     year: tzTime.format('YYYY'),
-    currentTime: tzTime.format('YYYY-MM-DD HH:mm'),
+    currentTime: tzTime.format('YYYY-MM-DD HH:mm:ss'),
   };
 };
 
