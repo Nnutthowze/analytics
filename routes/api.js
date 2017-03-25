@@ -16,15 +16,37 @@ const getUrlParams = query => Object.entries(query).filter(removeUnnecessaryPara
 // router for testing purposes
 router.get('/test', (req, res) => res.sendFile(path.join(__dirname, '../views/test.html')));
 
-// old GET => /addSiteVisit/:siteId/:url/:page?
-// new POST => /api/pageviews/:id/:page/:pagenum?
-router.patch('/pageviews/:id/:page/:pagenum?', (req, res) => {
-  // params in url `:url` or `:page` => req.params
-  const { id, page, pagenum } = req.params;
-  // params appended to url after `/?` => req.query
-  const { abpas, _server, _ctime, _timestamp } = req.query;
+router.get('/pageview/:id(\\d+)/:date(^\\d{1,8}$)', (req, res) => {
+  const { id, date } = req.params;
+  const { year, month, day } = getTime();
+  const today = `${year}${month}${day}`;
 
-  if (!id || !page || !_ctime || !_timestamp) {
+  if (date === '0') { // use current date
+    const { websites } = global.analytics;
+    if (!websites[today] || !websites[today][id]) {
+      return res.status(404).send(`Data for siteId: ${id} not found`);
+    }
+    return res.status(200).json(websites[today][id]);
+  }
+
+  // not today
+  const beforeToday = (date < 0) ? moment(today).add(date).format('YYYYMMDD') : date;
+  const filePath = path.join(DB_PATH, beforeToday, `${id}_campaign.json`);
+
+  return readFromFile(filePath)
+    .then(data => res.status(200).json(data))
+    .catch((err) => res.status(404).send('File not found'));
+});
+
+// old GET => /addSiteVisit/:siteId/:url/:page?
+// new POST => /api/pageviews/:id/:page/:number?
+router.patch('/pageview/:id/:page/:number?', (req, res) => {
+  // params in url `:url` or `:page` => req.params
+  const { id, page, number } = req.params;
+  // params appended to url after `/?` => req.query
+  const { abpas } = req.query;
+
+  if (!id || !page) {
     return res.status(400).send('Bad Request');
   }
 
@@ -34,7 +56,7 @@ router.patch('/pageviews/:id/:page/:pagenum?', (req, res) => {
   const siteIdPath = path.join(datePath, id);
 
   const tmpPage = page.replace('__x__', '');
-  const tmpPageNum = `/${$page}` || '';
+  const tmpPageNum = `/${page}` || '';
   const partUrl = `${tmpPage}${tmpPageNum}`;
   const urlParams = getUrlParams(req.query);
 
@@ -45,7 +67,7 @@ router.patch('/pageviews/:id/:page/:pagenum?', (req, res) => {
   return res.status(200).send('');
 });
 
-router.get('/campaign/:id/:date', (req, res) => {
+router.get('/campaign/:id(\\d+)/:date(^\\d{1,8}$)', (req, res) => {
   // POSSIBLE VALUES for `id`:
   // 0, 1, 2, ... n, where `n` represents number of supported websites
   // POSSIBLE VALUES for `date`:
@@ -57,10 +79,6 @@ router.get('/campaign/:id/:date', (req, res) => {
   const { id, date } = req.params;
   const { year, month, day } = getTime();
   const today = `${year}${month}${day}`;
-
-  if ((date > 0 && date.length < 8) || date > today) {
-    return res.status(404).send(`Data for siteId: ${id} not found`);
-  }
 
   if (date === '0') { // use current date
     const { abCampaign } = global.analytics;

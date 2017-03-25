@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
 const apiRoutes = require('./routes/api');
 const otherRoutes = require('./routes/other');
+const indexRoutes = require('./routes');
 
 const port = process.env.PORT || 3000;
 
@@ -23,11 +24,13 @@ let isBusy = false;
 let lastUpdateDbTime = null;
 let lastUpdateRefTime = null;
 
+app.use('/scripts', express.static('client/dist'));
 app.use('/assets', express.static('public'));
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 
+app.use('/', indexRoutes);
 app.use('/api', apiRoutes);
 app.use('/auth', authRoutes);
 app.use('/dashboard', dashboardRoutes);
@@ -40,6 +43,7 @@ app.listen(port, require('./lib/init')(global.analytics));
 
 // TODO:
 // continue work on api code
+// think how to merge get_campaign and get_pageview using one common middleware
 // add regex to route to avoid stupid checks in the code
 // use logs instead of console.error and console.log
 // cluster api vs pm2
